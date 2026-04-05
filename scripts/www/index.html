@@ -1,11 +1,1992 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>PakePlus</title>
-    </head>
-    <body>
-        PakePlus
-    </body>
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>给老婆的专属菜谱 | 每周做饭规划</title>
+    <!-- 引入外部资源 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css"
+      rel="stylesheet"
+    />
+    <!-- 配置Tailwind自定义主题 -->
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#f87171", // 暖红主色调
+              secondary: "#60a5fa", // 辅助蓝
+              neutral: {
+                100: "#f9fafb",
+                200: "#f3f4f6",
+                300: "#e5e7eb",
+                800: "#1f2937",
+              },
+              rating: "#fbbf24", // 评分星星颜色
+              tag: "#a78bfa", // 标签颜色
+              // 课程表颜色
+              breakfast: "#fcd34d", // 早餐-黄色
+              lunch: "#60a5fa", // 午餐-蓝色
+              dinner: "#a78bfa", // 晚餐-紫色
+            },
+            fontFamily: {
+              sans: ["Inter", "system-ui", "sans-serif"],
+            },
+            boxShadow: {
+              card: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+              hover:
+                "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+            },
+          },
+        },
+      };
+    </script>
+    <!-- 自定义工具类 -->
+    <style type="text/tailwindcss">
+      @layer utilities {
+        .content-auto {
+          content-visibility: auto;
+        }
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+        .calendar-cell {
+          @apply border border-neutral-300 rounded-lg p-2 min-h-[120px] flex flex-col cursor-pointer transition-all;
+        }
+        .calendar-cell-breakfast {
+          @apply bg-breakfast/10 hover:bg-breakfast/20;
+        }
+        .calendar-cell-lunch {
+          @apply bg-lunch/10 hover:bg-lunch/20;
+        }
+        .calendar-cell-dinner {
+          @apply bg-dinner/10 hover:bg-dinner/20;
+        }
+        .star-active {
+          @apply text-rating;
+        }
+        .star-inactive {
+          @apply text-neutral-300;
+        }
+        .nav-active {
+          @apply text-primary border-b-2 border-primary;
+        }
+      }
+    </style>
+  </head>
+  <body
+    class="bg-neutral-100 font-sans text-neutral-800 min-h-screen flex flex-col"
+  >
+    <!-- 主内容区 (顶部不再显示导航，改为底部) -->
+    <main class="flex-grow container mx-auto px-4 py-8 pb-20">
+      <!-- 首页区域 (默认显示) -->
+      <section id="home-section" class="mb-16">
+        <div class="bg-white rounded-xl shadow-card p-6 mb-8">
+          <h2 class="text-xl font-bold mb-4 flex items-center">
+            <i class="fa fa-search text-primary mr-2"></i>菜谱筛选
+          </h2>
+
+          <!-- 筛选工具栏 -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <!-- 搜索框 -->
+            <div class="relative">
+              <input
+                type="text"
+                id="search-input"
+                placeholder="搜索菜品/食材..."
+                class="w-full pl-10 pr-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
+              />
+              <i
+                class="fa fa-search absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400"
+              ></i>
+            </div>
+
+            <!-- 食材筛选 -->
+            <div class="relative">
+              <select
+                id="ingredient-filter"
+                class="w-full pl-10 pr-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary appearance-none transition-all"
+              >
+                <option value="">全部食材</option>
+                <option value="猪肉">猪肉</option>
+                <option value="鸡蛋">鸡蛋</option>
+                <option value="辣椒">辣椒</option>
+                <option value="鱼">鱼</option>
+                <option value="牛肉">牛肉</option>
+                <option value="蔬菜">蔬菜</option>
+                <option value="海鲜">海鲜</option>
+              </select>
+              <i
+                class="fa fa-cutlery absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400"
+              ></i>
+            </div>
+
+            <!-- 分类筛选 -->
+            <div class="relative">
+              <select
+                id="category-filter"
+                class="w-full pl-10 pr-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary appearance-none transition-all"
+              >
+                <option value="">全部分类</option>
+                <option value="荤菜">荤菜</option>
+                <option value="素菜">素菜</option>
+                <option value="海鲜">海鲜</option>
+                <option value="老婆精选">老婆精选</option>
+                <option value="短时长">短时长 (≤10分钟)</option>
+                <option value="长时长">长时长 (>10分钟)</option>
+              </select>
+              <i
+                class="fa fa-list absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400"
+              ></i>
+            </div>
+          </div>
+
+          <!-- 高级筛选 -->
+          <div
+            class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6"
+          >
+            <div>
+              <label class="block text-sm font-medium mb-1">烹饪方式</label>
+              <div class="flex flex-wrap gap-2">
+                <button
+                  class="filter-btn px-3 py-1 rounded-full bg-neutral-200 hover:bg-primary hover:text-white transition-colors text-sm"
+                  data-filter="炒"
+                >
+                  炒
+                </button>
+                <button
+                  class="filter-btn px-3 py-1 rounded-full bg-neutral-200 hover:bg-primary hover:text-white transition-colors text-sm"
+                  data-filter="烧"
+                >
+                  烧
+                </button>
+                <button
+                  class="filter-btn px-3 py-1 rounded-full bg-neutral-200 hover:bg-primary hover:text-white transition-colors text-sm"
+                  data-filter="煎"
+                >
+                  煎
+                </button>
+                <button
+                  class="filter-btn px-3 py-1 rounded-full bg-neutral-200 hover:bg-primary hover:text-white transition-colors text-sm"
+                  data-filter="蒸"
+                >
+                  蒸
+                </button>
+                <button
+                  class="filter-btn px-3 py-1 rounded-full bg-neutral-200 hover:bg-primary hover:text-white transition-colors text-sm"
+                  data-filter="炖"
+                >
+                  炖
+                </button>
+                <button
+                  class="filter-btn px-3 py-1 rounded-full bg-neutral-200 hover:bg-primary hover:text-white transition-colors text-sm"
+                  data-filter="凉拌"
+                >
+                  凉拌
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium mb-1">口味风格</label>
+              <div class="flex flex-wrap gap-2">
+                <button
+                  class="filter-btn px-3 py-1 rounded-full bg-neutral-200 hover:bg-primary hover:text-white transition-colors text-sm"
+                  data-filter="辣"
+                >
+                  辣
+                </button>
+                <button
+                  class="filter-btn px-3 py-1 rounded-full bg-neutral-200 hover:bg-primary hover:text-white transition-colors text-sm"
+                  data-filter="酸"
+                >
+                  酸
+                </button>
+                <button
+                  class="filter-btn px-3 py-1 rounded-full bg-neutral-200 hover:bg-primary hover:text-white transition-colors text-sm"
+                  data-filter="甜"
+                >
+                  甜
+                </button>
+                <button
+                  class="filter-btn px-3 py-1 rounded-full bg-neutral-200 hover:bg-primary hover:text-white transition-colors text-sm"
+                  data-filter="咸"
+                >
+                  咸
+                </button>
+                <button
+                  class="filter-btn px-3 py-1 rounded-full bg-neutral-200 hover:bg-primary hover:text-white transition-colors text-sm"
+                  data-filter="麻"
+                >
+                  麻
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium mb-1">荤素分类</label>
+              <div class="flex flex-wrap gap-2">
+                <button
+                  class="filter-btn px-3 py-1 rounded-full bg-neutral-200 hover:bg-primary hover:text-white transition-colors text-sm"
+                  data-filter="荤菜"
+                >
+                  荤菜
+                </button>
+                <button
+                  class="filter-btn px-3 py-1 rounded-full bg-neutral-200 hover:bg-primary hover:text-white transition-colors text-sm"
+                  data-filter="素菜"
+                >
+                  素菜
+                </button>
+                <button
+                  class="filter-btn px-3 py-1 rounded-full bg-neutral-200 hover:bg-primary hover:text-white transition-colors text-sm"
+                  data-filter="半荤半素"
+                >
+                  半荤半素
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium mb-1">烹饪时长</label>
+              <div class="flex flex-wrap gap-2">
+                <button
+                  class="filter-btn px-3 py-1 rounded-full bg-neutral-200 hover:bg-primary hover:text-white transition-colors text-sm"
+                  data-filter="短时长"
+                >
+                  短 (<10分钟)
+                </button>
+                <button
+                  class="filter-btn px-3 py-1 rounded-full bg-neutral-200 hover:bg-primary hover:text-white transition-colors text-sm"
+                  data-filter="长时长"
+                >
+                  长 (≥10分钟)
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 重置筛选按钮 -->
+          <button
+            id="reset-filter"
+            class="px-4 py-2 bg-neutral-200 hover:bg-neutral-300 rounded-lg transition-colors flex items-center"
+          >
+            <i class="fa fa-refresh mr-2"></i>重置筛选
+          </button>
+        </div>
+
+        <!-- 筛选结果展示 -->
+        <div class="bg-white rounded-xl shadow-card p-6">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold flex items-center">
+              <i class="fa fa-list-ul text-primary mr-2"></i>推荐菜谱
+            </h2>
+            <span id="result-count" class="text-sm text-neutral-500"
+              >共 0 道菜</span
+            >
+          </div>
+
+          <!-- 菜品卡片网格 -->
+          <div
+            id="recipe-grid"
+            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+          >
+            <!-- 菜品卡片由JS动态生成 -->
+          </div>
+        </div>
+      </section>
+
+      <!-- 全部菜谱区域 (默认隐藏) -->
+      <section id="recipes-section" class="mb-16 hidden">
+        <div class="bg-white rounded-xl shadow-card p-6">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold flex items-center">
+              <i class="fa fa-book text-primary mr-2"></i>全部菜谱
+            </h2>
+            <div class="flex items-center">
+              <span class="text-sm text-neutral-500 mr-2">排序：</span>
+              <select
+                id="sort-recipes"
+                class="px-3 py-1 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+              >
+                <option value="name">按名称</option>
+                <option value="rating">按评分</option>
+                <option value="time">按时长</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- 全部菜品卡片网格 -->
+          <div
+            id="all-recipes-grid"
+            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-6"
+          >
+            <!-- 菜品卡片由JS动态生成 -->
+          </div>
+
+          <!-- 分页控件 -->
+          <div class="flex justify-center items-center gap-2 mt-6">
+            <button
+              id="prev-page"
+              class="px-3 py-1 border border-neutral-300 rounded-lg hover:bg-primary hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <i class="fa fa-chevron-left"></i>
+            </button>
+            <span id="page-info" class="text-sm">第 1 页 / 共 0 页</span>
+            <button
+              id="next-page"
+              class="px-3 py-1 border border-neutral-300 rounded-lg hover:bg-primary hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <i class="fa fa-chevron-right"></i>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 每周规划区域 (默认隐藏) -->
+      <section id="weekly-plan-section" class="mb-8 hidden">
+        <div class="bg-white rounded-xl shadow-card p-6">
+          <h2 class="text-xl font-bold mb-6 flex items-center">
+            <i class="fa fa-calendar text-primary mr-2"></i>每周做饭规划
+          </h2>
+
+          <!-- 周选择器 -->
+          <div class="flex justify-between items-center mb-6">
+            <button
+              id="prev-week"
+              class="px-3 py-1 bg-neutral-200 hover:bg-neutral-300 rounded-lg transition-colors flex items-center"
+            >
+              <i class="fa fa-chevron-left mr-1"></i>上一周
+            </button>
+            <h3 class="font-medium">
+              每周规划
+            </h3>
+            <button
+              id="next-week"
+              class="px-3 py-1 bg-neutral-200 hover:bg-neutral-300 rounded-lg transition-colors flex items-center"
+            >
+              下一周<i class="fa fa-chevron-right ml-1"></i>
+            </button>
+          </div>
+
+          <!-- 课程表样式日历 -->
+          <div class="overflow-x-auto pb-4">
+            <div class="grid grid-cols-[80px_1fr_1fr_1fr_1fr_1fr_1fr_1fr] gap-0 min-w-[768px]">
+              <!-- 表头 -->
+              <div class="p-2 bg-neutral-100 text-sm">时间</div>
+              <div class="p-2 text-center border border-neutral-300 rounded-l-lg bg-neutral-100 text-sm">周一</div>
+              <div class="p-2 text-center border border-neutral-300 bg-neutral-100 text-sm">周二</div>
+              <div class="p-2 text-center border border-neutral-300 bg-neutral-100 text-sm">周三</div>
+              <div class="p-2 text-center border border-neutral-300 bg-neutral-100 text-sm">周四</div>
+              <div class="p-2 text-center border border-neutral-300 bg-neutral-100 text-sm">周五</div>
+              <div class="p-2 text-center border border-neutral-300 bg-neutral-100 text-sm">周六</div>
+              <div class="p-2 text-center border border-neutral-300 rounded-r-lg bg-neutral-100 text-sm">周日</div>
+
+              <!-- 早餐行 -->
+              <div class="p-2 font-medium border border-neutral-300 text-sm">早餐</div>
+              <div class="calendar-cell calendar-cell-breakfast border border-neutral-300" data-day="1" data-meal="breakfast"></div>
+              <div class="calendar-cell calendar-cell-breakfast border border-neutral-300" data-day="2" data-meal="breakfast"></div>
+              <div class="calendar-cell calendar-cell-breakfast border border-neutral-300" data-day="3" data-meal="breakfast"></div>
+              <div class="calendar-cell calendar-cell-breakfast border border-neutral-300" data-day="4" data-meal="breakfast"></div>
+              <div class="calendar-cell calendar-cell-breakfast border border-neutral-300" data-day="5" data-meal="breakfast"></div>
+              <div class="calendar-cell calendar-cell-breakfast border border-neutral-300" data-day="6" data-meal="breakfast"></div>
+              <div class="calendar-cell calendar-cell-breakfast border border-neutral-300" data-day="7" data-meal="breakfast"></div>
+
+              <!-- 午餐行 -->
+              <div class="p-2 font-medium border border-neutral-300 text-sm">午餐</div>
+              <div class="calendar-cell calendar-cell-lunch border border-neutral-300" data-day="1" data-meal="lunch"></div>
+              <div class="calendar-cell calendar-cell-lunch border border-neutral-300" data-day="2" data-meal="lunch"></div>
+              <div class="calendar-cell calendar-cell-lunch border border-neutral-300" data-day="3" data-meal="lunch"></div>
+              <div class="calendar-cell calendar-cell-lunch border border-neutral-300" data-day="4" data-meal="lunch"></div>
+              <div class="calendar-cell calendar-cell-lunch border border-neutral-300" data-day="5" data-meal="lunch"></div>
+              <div class="calendar-cell calendar-cell-lunch border border-neutral-300" data-day="6" data-meal="lunch"></div>
+              <div class="calendar-cell calendar-cell-lunch border border-neutral-300" data-day="7" data-meal="lunch"></div>
+
+              <!-- 晚餐行 -->
+              <div class="p-2 font-medium border border-neutral-300 text-sm">晚餐</div>
+              <div class="calendar-cell calendar-cell-dinner border border-neutral-300" data-day="1" data-meal="dinner"></div>
+              <div class="calendar-cell calendar-cell-dinner border border-neutral-300" data-day="2" data-meal="dinner"></div>
+              <div class="calendar-cell calendar-cell-dinner border border-neutral-300" data-day="3" data-meal="dinner"></div>
+              <div class="calendar-cell calendar-cell-dinner border border-neutral-300" data-day="4" data-meal="dinner"></div>
+              <div class="calendar-cell calendar-cell-dinner border border-neutral-300" data-day="5" data-meal="dinner"></div>
+              <div class="calendar-cell calendar-cell-dinner border border-neutral-300" data-day="6" data-meal="dinner"></div>
+              <div class="calendar-cell calendar-cell-dinner border border-neutral-300" data-day="7" data-meal="dinner"></div>
+            </div>
+          </div>
+          
+          <!-- 移动端提示 -->
+          <div class="text-xs text-neutral-500 mt-2">
+            <i class="fa fa-info-circle mr-1"></i>在移动设备上，您可以左右滑动查看完整日历
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- 底部导航栏 -->
+    <footer
+      class="fixed bottom-0 left-0 right-0 bg-white shadow-lg border-t border-neutral-200 z-40"
+    >
+      <div class="container mx-auto">
+        <ul class="flex justify-around items-center h-16">
+          <li>
+            <a
+              href="#home"
+              class="nav-link flex flex-col items-center justify-center text-sm nav-active"
+              data-target="home-section"
+            >
+              <i class="fa fa-home text-lg mb-1"></i>
+              <span>首页</span>
+            </a>
+          </li>
+          <li>
+            <a
+              href="#recipes"
+              class="nav-link flex flex-col items-center justify-center text-sm text-neutral-500"
+              data-target="recipes-section"
+            >
+              <i class="fa fa-book text-lg mb-1"></i>
+              <span>全部菜谱</span>
+            </a>
+          </li>
+          <li>
+            <a
+              href="#weekly-plan"
+              class="nav-link flex flex-col items-center justify-center text-sm text-neutral-500"
+              data-target="weekly-plan-section"
+            >
+              <i class="fa fa-calendar text-lg mb-1"></i>
+              <span>每周规划</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </footer>
+
+    <!-- 评分修改模态框 -->
+    <div
+      id="rating-modal"
+      class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden"
+    >
+      <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="font-bold text-lg" id="rating-modal-title">
+            修改评分 - 辣椒炒肉
+          </h3>
+          <button
+            id="close-rating-modal"
+            class="text-neutral-500 hover:text-neutral-800"
+          >
+            <i class="fa fa-times text-xl"></i>
+          </button>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium mb-2">请选择评分</label>
+          <div class="flex items-center gap-2" id="rating-stars">
+            <i
+              class="fa fa-star text-2xl cursor-pointer star-active"
+              data-rating="1"
+            ></i>
+            <i
+              class="fa fa-star text-2xl cursor-pointer star-inactive"
+              data-rating="2"
+            ></i>
+            <i
+              class="fa fa-star text-2xl cursor-pointer star-inactive"
+              data-rating="3"
+            ></i>
+            <i
+              class="fa fa-star text-2xl cursor-pointer star-inactive"
+              data-rating="4"
+            ></i>
+            <i
+              class="fa fa-star text-2xl cursor-pointer star-inactive"
+              data-rating="5"
+            ></i>
+          </div>
+        </div>
+        <div class="flex justify-end">
+          <button
+            id="save-rating"
+            class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+          >
+            保存评分
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 图片修改模态框 -->
+    <div
+      id="image-modal"
+      class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden"
+    >
+      <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="font-bold text-lg" id="image-modal-title">
+            修改图片 - 辣椒炒肉
+          </h3>
+          <button
+            id="close-image-modal"
+            class="text-neutral-500 hover:text-neutral-800"
+          >
+            <i class="fa fa-times text-xl"></i>
+          </button>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium mb-2">图片URL</label>
+          <input
+            type="text"
+            id="image-url-input"
+            class="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+            placeholder="输入图片网络地址"
+          />
+        </div>
+        <div class="flex justify-end">
+          <button
+            id="save-image"
+            class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+          >
+            保存图片
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 快速添加规划模态框 -->
+    <div
+      id="quick-add-modal"
+      class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden"
+    >
+      <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="font-bold text-lg" id="quick-add-title">
+            快速添加规划
+          </h3>
+          <button
+            id="close-quick-add"
+            class="text-neutral-500 hover:text-neutral-800"
+          >
+            <i class="fa fa-times text-xl"></i>
+          </button>
+        </div>
+        <div class="mb-6">
+          <div class="mb-4">
+            <label class="block text-sm font-medium mb-2">选择日期</label>
+            <select id="quick-add-day" class="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+              <option value="1">周一</option>
+              <option value="2">周二</option>
+              <option value="3">周三</option>
+              <option value="4">周四</option>
+              <option value="5">周五</option>
+              <option value="6">周六</option>
+              <option value="7">周日</option>
+            </select>
+          </div>
+          <div class="mb-4">
+            <label class="block text-sm font-medium mb-2">选择餐型</label>
+            <select id="quick-add-meal" class="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+              <option value="breakfast">早餐</option>
+              <option value="lunch">午餐</option>
+              <option value="dinner">晚餐</option>
+            </select>
+          </div>
+          <div id="quick-add-recipe-info" class="p-3 bg-neutral-50 rounded-lg mb-4"></div>
+        </div>
+        <div class="flex justify-end space-x-3">
+          <button
+            id="quick-add-cancel"
+            class="px-4 py-2 bg-neutral-200 text-neutral-700 rounded-lg hover:bg-neutral-300 transition-colors"
+          >
+            取消
+          </button>
+          <button
+            id="quick-add-confirm"
+            class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+          >
+            确认添加
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 添加菜品模态框 (保留原有) -->
+    <div
+      id="add-recipe-modal"
+      class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden"
+    >
+      <div
+        class="bg-white rounded-xl shadow-lg w-full max-w-lg max-h-[80vh] overflow-hidden flex flex-col"
+      >
+        <div class="p-4 border-b flex justify-between items-center">
+          <h3 class="font-bold text-lg" id="modal-title">
+            添加菜品 - 周三 午餐
+          </h3>
+          <button
+            id="close-modal"
+            class="text-neutral-500 hover:text-neutral-800"
+          >
+            <i class="fa fa-times text-xl"></i>
+          </button>
+        </div>
+        <div class="p-4 flex-grow overflow-y-auto">
+          <div class="mb-4">
+            <input
+              type="text"
+              id="modal-search"
+              placeholder="搜索菜品..."
+              class="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+            />
+          </div>
+          <div id="modal-recipe-list" class="grid grid-cols-2 gap-3">
+            <!-- 模态框菜品列表 -->
+          </div>
+        </div>
+        <div class="p-4 border-t">
+          <button
+            id="confirm-add-recipe"
+            class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+          >
+            确认添加
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // 菜谱数据 (从JSON文件读取，这里先硬编码示例)
+      const recipesData = {
+        "foods": [
+          {
+            "id": 1,
+            "name": "辣椒炒肉",
+            "type": ["辣椒", "猪肉"],
+            "description": "",
+            "time": 9.99,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 4,
+            "cookingMethod": "炒",
+            "flavor": "辣",
+            "category": "荤菜"
+          },
+          {
+            "id": 2,
+            "name": "辣椒炒蛋",
+            "type": ["辣椒", "鸡蛋"],
+            "description": "",
+            "time": 9.99,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 3,
+            "cookingMethod": "炒",
+            "flavor": "辣",
+            "category": "半荤半素"
+          },
+          {
+            "id": 3,
+            "name": "蒜苔炒肉",
+            "type": ["蒜苔", "猪肉"],
+            "description": "",
+            "time": 9.99,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 5,
+            "cookingMethod": "炒",
+            "flavor": "咸",
+            "category": "荤菜"
+          },
+          {
+            "id": 4,
+            "name": "蒜苔炒蛋",
+            "type": ["蒜苔", "鸡蛋"],
+            "description": "",
+            "time": 9.99,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 2,
+            "cookingMethod": "炒",
+            "flavor": "咸",
+            "category": "半荤半素"
+          },
+          {
+            "id": 5,
+            "name": "西红柿炒蛋",
+            "type": ["西红柿", "鸡蛋"],
+            "description": "",
+            "time": 8,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 5,
+            "cookingMethod": "炒",
+            "flavor": "甜",
+            "category": "半荤半素"
+          },
+          {
+            "id": 6,
+            "name": "清炒玉米",
+            "type": ["玉米"],
+            "description": "",
+            "time": 7,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 3,
+            "cookingMethod": "炒",
+            "flavor": "甜",
+            "category": "素菜"
+          },
+          {
+            "id": 7,
+            "name": "豌豆炒玉米",
+            "type": ["豌豆", "玉米"],
+            "description": "",
+            "time": 8.5,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 4,
+            "cookingMethod": "炒",
+            "flavor": "甜",
+            "category": "素菜"
+          },
+          {
+            "id": 8,
+            "name": "辣子鸡",
+            "type": ["鸡肉"],
+            "description": "",
+            "time": 15,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 5,
+            "cookingMethod": "炒",
+            "flavor": "辣",
+            "category": "荤菜"
+          },
+          {
+            "id": 9,
+            "name": "酸辣藕丁",
+            "type": ["藕"],
+            "description": "",
+            "time": 10,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 3,
+            "cookingMethod": "炒",
+            "flavor": "酸辣",
+            "category": "素菜"
+          },
+          {
+            "id": 10,
+            "name": "干煸藕丝",
+            "type": ["藕"],
+            "description": "",
+            "time": 12,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 4,
+            "cookingMethod": "干煸",
+            "flavor": "辣",
+            "category": "素菜"
+          },
+          {
+            "id": 11,
+            "name": "红烧鱼",
+            "type": ["鱼"],
+            "description": "",
+            "time": 25,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 4,
+            "cookingMethod": "烧",
+            "flavor": "咸",
+            "category": "荤菜"
+          },
+          {
+            "id": 12,
+            "name": "鱼香肉丝",
+            "type": ["木耳", "猪肉", "胡萝卜", "辣椒"],
+            "description": "",
+            "time": 18,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 5,
+            "cookingMethod": "炒",
+            "flavor": "鱼香",
+            "category": "荤菜"
+          },
+          {
+            "id": 13,
+            "name": "手撕包菜",
+            "type": ["包菜"],
+            "description": "",
+            "time": 9,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 3,
+            "cookingMethod": "炒",
+            "flavor": "辣",
+            "category": "素菜"
+          },
+          {
+            "id": 14,
+            "name": "酸辣土豆丝",
+            "type": ["土豆"],
+            "description": "",
+            "time": 8,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 5,
+            "cookingMethod": "炒",
+            "flavor": "酸辣",
+            "category": "素菜"
+          },
+          {
+            "id": 15,
+            "name": "小炒黄牛肉",
+            "type": ["香菜", "牛肉"],
+            "description": "",
+            "time": 11,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 4,
+            "cookingMethod": "炒",
+            "flavor": "辣",
+            "category": "荤菜"
+          },
+          {
+            "id": 16,
+            "name": "香煎豆腐",
+            "type": ["老豆腐"],
+            "description": "",
+            "time": 10,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 3,
+            "cookingMethod": "煎",
+            "flavor": "咸",
+            "category": "素菜"
+          },
+          {
+            "id": 17,
+            "name": "红烧茄子",
+            "type": ["茄子"],
+            "description": "",
+            "time": 15,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 4,
+            "cookingMethod": "烧",
+            "flavor": "咸",
+            "category": "素菜"
+          },
+          {
+            "id": 18,
+            "name": "锅包肉",
+            "type": ["猪肉"],
+            "description": "",
+            "time": 20,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 5,
+            "cookingMethod": "煎",
+            "flavor": "甜酸",
+            "category": "荤菜"
+          },
+          {
+            "id": 19,
+            "name": "糖醋里脊",
+            "type": ["猪肉"],
+            "description": "",
+            "time": 18,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 4,
+            "cookingMethod": "炸",
+            "flavor": "甜酸",
+            "category": "荤菜"
+          },
+          {
+            "id": 20,
+            "name": "洋葱炒蛋",
+            "type": ["洋葱", "鸡蛋"],
+            "description": "",
+            "time": 8,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 3,
+            "cookingMethod": "炒",
+            "flavor": "咸",
+            "category": "半荤半素"
+          },
+          {
+            "id": 21,
+            "name": "油闷大虾",
+            "type": ["小龙虾"],
+            "description": "",
+            "time": 25,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 5,
+            "cookingMethod": "焖",
+            "flavor": "辣",
+            "category": "海鲜"
+          },
+          {
+            "id": 22,
+            "name": "红烧肉",
+            "type": ["猪肉"],
+            "description": "",
+            "time": 30,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 5,
+            "cookingMethod": "烧",
+            "flavor": "甜",
+            "category": "荤菜"
+          },
+          {
+            "id": 23,
+            "name": "牛蛙火锅",
+            "type": ["牛蛙"],
+            "description": "",
+            "time": 40,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 4,
+            "cookingMethod": "煮",
+            "flavor": "麻辣",
+            "category": "荤菜"
+          },
+          {
+            "id": 24,
+            "name": "干锅牛蛙",
+            "type": ["牛蛙"],
+            "description": "",
+            "time": 25,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 4,
+            "cookingMethod": "干锅",
+            "flavor": "辣",
+            "category": "荤菜"
+          },
+          {
+            "id": 25,
+            "name": "酸菜鱼",
+            "type": ["豌酸菜", "鱼"],
+            "description": "",
+            "time": 25,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 5,
+            "cookingMethod": "煮",
+            "flavor": "酸辣",
+            "category": "荤菜"
+          },
+          {
+            "id": 26,
+            "name": "蒜蓉虾",
+            "type": ["虾"],
+            "description": "",
+            "time": 15,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 4,
+            "cookingMethod": "蒸",
+            "flavor": "蒜香",
+            "category": "海鲜"
+          },
+          {
+            "id": 27,
+            "name": "蒜蓉鸡爪",
+            "type": ["鸡爪"],
+            "description": "",
+            "time": 20,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 3,
+            "cookingMethod": "卤",
+            "flavor": "蒜香",
+            "category": "荤菜"
+          },
+          {
+            "id": 28,
+            "name": "清炒秋葵",
+            "type": ["秋葵"],
+            "description": "",
+            "time": 7,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 2,
+            "cookingMethod": "炒",
+            "flavor": "咸",
+            "category": "素菜"
+          },
+          {
+            "id": 29,
+            "name": "糖醋排骨",
+            "type": ["猪排骨"],
+            "description": "",
+            "time": 25,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 5,
+            "cookingMethod": "烧",
+            "flavor": "甜酸",
+            "category": "荤菜"
+          },
+          {
+            "id": 30,
+            "name": "羊肉火锅",
+            "type": ["羊肉"],
+            "description": "",
+            "time": 45,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 4,
+            "cookingMethod": "煮",
+            "flavor": "麻辣",
+            "category": "荤菜"
+          },
+          {
+            "id": 31,
+            "name": "麻辣甲鱼",
+            "type": ["甲鱼"],
+            "description": "",
+            "time": 35,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 3,
+            "cookingMethod": "炖",
+            "flavor": "麻辣",
+            "category": "荤菜"
+          },
+          {
+            "id": 32,
+            "name": "干煸土豆丝",
+            "type": ["土豆"],
+            "description": "",
+            "time": 10,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 3,
+            "cookingMethod": "干煸",
+            "flavor": "辣",
+            "category": "素菜"
+          },
+          {
+            "id": 33,
+            "name": "豆豉鲮鱼炒油麦菜",
+            "type": ["豆豉鲮鱼", "油麦菜"],
+            "description": "",
+            "time": 9,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 4,
+            "cookingMethod": "炒",
+            "flavor": "咸",
+            "category": "半荤半素"
+          },
+          {
+            "id": 34,
+            "name": "水煮肉片",
+            "type": ["猪肉"],
+            "description": "",
+            "time": 15,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 4,
+            "cookingMethod": "煮",
+            "flavor": "麻辣",
+            "category": "荤菜"
+          },
+          {
+            "id": 35,
+            "name": "麻辣花甲",
+            "type": ["花甲"],
+            "description": "",
+            "time": 12,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 4,
+            "cookingMethod": "炒",
+            "flavor": "麻辣",
+            "category": "海鲜"
+          },
+          {
+            "id": 36,
+            "name": "椒盐玉米",
+            "type": ["玉米"],
+            "description": "",
+            "time": 8,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 3,
+            "cookingMethod": "炒",
+            "flavor": "椒盐",
+            "category": "素菜"
+          },
+          {
+            "id": 37,
+            "name": "椒盐虾",
+            "type": ["基围虾"],
+            "description": "",
+            "time": 10,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 4,
+            "cookingMethod": "炸",
+            "flavor": "椒盐",
+            "category": "海鲜"
+          },
+          {
+            "id": 38,
+            "name": "滑藕片",
+            "type": ["辣椒", "藕"],
+            "description": "",
+            "time": 8,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 3,
+            "cookingMethod": "炒",
+            "flavor": "辣",
+            "category": "素菜"
+          },
+          {
+            "id": 39,
+            "name": "酸辣鸡杂",
+            "type": ["蒜苔", "鸡杂"],
+            "description": "",
+            "time": 12,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 4,
+            "cookingMethod": "炒",
+            "flavor": "酸辣",
+            "category": "荤菜"
+          },
+          {
+            "id": 40,
+            "name": "凉拌黄瓜",
+            "type": ["黄瓜"],
+            "description": "",
+            "time": 5,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 3,
+            "cookingMethod": "凉拌",
+            "flavor": "酸辣",
+            "category": "素菜"
+          },
+          {
+            "id": 41,
+            "name": "清炒黄瓜",
+            "type": ["黄瓜"],
+            "description": "",
+            "time": 6,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 2,
+            "cookingMethod": "炒",
+            "flavor": "咸",
+            "category": "素菜"
+          },
+          {
+            "id": 42,
+            "name": "清炒豆芽",
+            "type": ["豆芽"],
+            "description": "",
+            "time": 5,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 2,
+            "cookingMethod": "炒",
+            "flavor": "咸",
+            "category": "素菜"
+          },
+          {
+            "id": 43,
+            "name": "芹菜炒肉",
+            "type": ["芹菜", "猪肉"],
+            "description": "",
+            "time": 9,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 3,
+            "cookingMethod": "炒",
+            "flavor": "咸",
+            "category": "荤菜"
+          },
+          {
+            "id": 44,
+            "name": "炒豆角",
+            "type": ["豆角"],
+            "description": "",
+            "time": 10,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 3,
+            "cookingMethod": "炒",
+            "flavor": "咸",
+            "category": "素菜"
+          },
+          {
+            "id": 45,
+            "name": "酱烧肘子",
+            "type": ["猪肘子"],
+            "description": "",
+            "time": 60,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 4,
+            "cookingMethod": "烧",
+            "flavor": "酱香",
+            "category": "荤菜"
+          },
+          {
+            "id": 46,
+            "name": "韭菜炒鸡蛋",
+            "type": ["韭菜", "鸡蛋"],
+            "description": "",
+            "time": 7,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 4,
+            "cookingMethod": "炒",
+            "flavor": "咸",
+            "category": "半荤半素"
+          },
+          {
+            "id": 47,
+            "name": "韭黄炒肉丝",
+            "type": ["韭黄", "猪肉"],
+            "description": "",
+            "time": 8,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 3,
+            "cookingMethod": "炒",
+            "flavor": "咸",
+            "category": "荤菜"
+          },
+          {
+            "id": 48,
+            "name": "花菜炒肉",
+            "type": ["西兰花", "猪肉"],
+            "description": "",
+            "time": 10,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 3,
+            "cookingMethod": "炒",
+            "flavor": "咸",
+            "category": "荤菜"
+          },
+          {
+            "id": 49,
+            "name": "麻婆豆腐",
+            "type": ["嫩豆腐", "猪肉"],
+            "description": "",
+            "time": 12,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 5,
+            "cookingMethod": "烧",
+            "flavor": "麻辣",
+            "category": "半荤半素"
+          },
+          {
+            "id": 50,
+            "name": "清蒸鲈鱼",
+            "type": ["鱼"],
+            "description": "",
+            "time": 20,
+            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
+            "rating": 4,
+            "cookingMethod": "蒸",
+            "flavor": "鲜",
+            "category": "荤菜"
+          }
+        ]
+      };
+
+      // 全局变量
+      let currentRecipes = [...recipesData.foods];
+      let currentPage = 1;
+      const itemsPerPage = 8; // 每页显示8个菜品
+      let selectedRecipeId = null;
+      let selectedDay = null;
+      let selectedMeal = null;
+
+      // 图片代理函数，解决CORS问题
+      function getImageUrl(url) {
+        // 如果是本地服务器图片，直接返回
+        if (url.includes('101.126.80.178')) {
+          return url;
+        }
+        // 否则使用一个简单的图片代理
+        return `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+      }
+
+      // 初始化页面
+      document.addEventListener("DOMContentLoaded", function () {
+        // 从本地存储加载评分和图片
+        loadLocalData();
+
+        // 初始化底部导航
+        initBottomNav();
+
+        // 初始化筛选功能
+        initFilters();
+
+        // 初始化菜谱展示
+        renderRecipeGrid(currentRecipes);
+        renderAllRecipes();
+
+        // 初始化分页
+        updatePagination();
+
+        // 初始化日历
+        initCalendar();
+
+        // 初始化模态框事件
+        initModals();
+      });
+
+      // 加载本地存储的评分和图片
+      function loadLocalData() {
+        const savedRatings = JSON.parse(
+          localStorage.getItem("recipeRatings") || "{}",
+        );
+        const savedImages = JSON.parse(
+          localStorage.getItem("recipeImages") || "{}",
+        );
+
+        // 更新菜谱数据
+        currentRecipes.forEach((recipe) => {
+          if (savedRatings[recipe.id]) {
+            recipe.rating = savedRatings[recipe.id];
+          }
+          if (savedImages[recipe.id]) {
+            recipe.image = savedImages[recipe.id];
+          }
+        });
+      }
+
+      // 初始化底部导航
+      function initBottomNav() {
+        const navLinks = document.querySelectorAll(".nav-link");
+        navLinks.forEach((link) => {
+          link.addEventListener("click", function (e) {
+            e.preventDefault();
+
+            // 隐藏所有区域
+            document.querySelectorAll("main > section").forEach((section) => {
+              section.classList.add("hidden");
+            });
+
+            // 激活当前导航
+            navLinks.forEach((l) => l.classList.remove("nav-active"));
+            this.classList.add("nav-active");
+
+            // 显示目标区域
+            const targetId = this.dataset.target;
+            document.getElementById(targetId).classList.remove("hidden");
+          });
+        });
+      }
+
+      // 初始化筛选功能
+      function initFilters() {
+        // 搜索框
+        document
+          .getElementById("search-input")
+          .addEventListener("input", filterRecipes);
+
+        // 食材筛选
+        document
+          .getElementById("ingredient-filter")
+          .addEventListener("change", filterRecipes);
+
+        // 分类筛选
+        document
+          .getElementById("category-filter")
+          .addEventListener("change", filterRecipes);
+
+        // 筛选按钮
+        document.querySelectorAll(".filter-btn").forEach((btn) => {
+          btn.addEventListener("click", function () {
+            // 切换按钮状态
+            this.classList.toggle("bg-primary");
+            this.classList.toggle("text-white");
+            this.classList.toggle("bg-neutral-200");
+            filterRecipes();
+          });
+        });
+
+        // 重置筛选
+        document
+          .getElementById("reset-filter")
+          .addEventListener("click", function () {
+            // 重置搜索框
+            document.getElementById("search-input").value = "";
+
+            // 重置下拉框
+            document.getElementById("ingredient-filter").value = "";
+            document.getElementById("category-filter").value = "";
+
+            // 重置筛选按钮
+            document.querySelectorAll(".filter-btn").forEach((btn) => {
+              btn.classList.remove("bg-primary", "text-white");
+              btn.classList.add("bg-neutral-200");
+            });
+
+            // 重新筛选
+            filterRecipes();
+          });
+
+        // 排序
+        document
+          .getElementById("sort-recipes")
+          .addEventListener("change", function () {
+            sortRecipes(this.value);
+            renderAllRecipes();
+            updatePagination();
+          });
+      }
+
+      // 筛选菜谱
+      function filterRecipes() {
+        const searchText = document
+          .getElementById("search-input")
+          .value.toLowerCase();
+        const ingredientFilter =
+          document.getElementById("ingredient-filter").value;
+        const categoryFilter = document.getElementById("category-filter").value;
+
+        // 获取选中的筛选按钮
+        const selectedFilters = [];
+        document.querySelectorAll(".filter-btn.bg-primary").forEach((btn) => {
+          selectedFilters.push(btn.dataset.filter);
+        });
+
+        // 筛选逻辑
+        let filtered = [...recipesData.foods];
+
+        // 搜索文本筛选
+        if (searchText) {
+          filtered = filtered.filter(
+            (recipe) =>
+              recipe.name.toLowerCase().includes(searchText) ||
+              recipe.type.some((t) => t.toLowerCase().includes(searchText)),
+          );
+        }
+
+        // 食材筛选
+        if (ingredientFilter) {
+          filtered = filtered.filter((recipe) =>
+            recipe.type.includes(ingredientFilter),
+          );
+        }
+
+        // 分类筛选
+        if (categoryFilter) {
+          if (categoryFilter === "老婆精选") {
+            filtered = filtered.filter((recipe) => recipe.rating === 5);
+          } else if (categoryFilter === "短时长") {
+            filtered = filtered.filter((recipe) => recipe.time <= 10);
+          } else if (categoryFilter === "长时长") {
+            filtered = filtered.filter((recipe) => recipe.time > 10);
+          } else {
+            filtered = filtered.filter(
+              (recipe) => recipe.category === categoryFilter,
+            );
+          }
+        }
+
+        // 高级筛选
+        if (selectedFilters.length > 0) {
+          filtered = filtered.filter((recipe) => {
+            return selectedFilters.every((filter) => {
+              if (["炒", "烧", "煎", "蒸", "炖", "凉拌"].includes(filter)) {
+                return recipe.cookingMethod === filter;
+              } else if (["辣", "酸", "甜", "咸", "麻"].includes(filter)) {
+                return recipe.flavor.includes(filter);
+              } else if (["荤菜", "素菜", "半荤半素"].includes(filter)) {
+                return recipe.category === filter;
+              } else if (filter === "短时长") {
+                return recipe.time < 10;
+              } else if (filter === "长时长") {
+                return recipe.time >= 10;
+              }
+              return true;
+            });
+          });
+        }
+
+        // 更新展示
+        renderRecipeGrid(filtered);
+        document.getElementById("result-count").textContent =
+          `共 ${filtered.length} 道菜`;
+      }
+
+      // 排序菜谱
+      function sortRecipes(sortBy) {
+        if (sortBy === "name") {
+          currentRecipes.sort((a, b) => a.name.localeCompare(b.name));
+        } else if (sortBy === "rating") {
+          currentRecipes.sort((a, b) => b.rating - a.rating);
+        } else if (sortBy === "time") {
+          currentRecipes.sort((a, b) => a.time - b.time);
+        }
+      }
+
+      // 渲染筛选结果网格
+      function renderRecipeGrid(recipes) {
+        const grid = document.getElementById("recipe-grid");
+        grid.innerHTML = "";
+
+        if (recipes.length === 0) {
+          grid.innerHTML =
+            '<div class="col-span-full text-center py-8 text-neutral-500">暂无符合条件的菜品</div>';
+          return;
+        }
+
+        recipes.forEach((recipe) => {
+          const card = createRecipeCard(recipe);
+          grid.appendChild(card);
+        });
+      }
+
+      // 渲染全部菜谱（带分页）
+      function renderAllRecipes() {
+        const grid = document.getElementById("all-recipes-grid");
+        grid.innerHTML = "";
+
+        // 计算分页
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const paginatedRecipes = currentRecipes.slice(startIndex, endIndex);
+
+        if (paginatedRecipes.length === 0) {
+          grid.innerHTML =
+            '<div class="col-span-full text-center py-8 text-neutral-500">暂无菜品</div>';
+          return;
+        }
+
+        paginatedRecipes.forEach((recipe) => {
+          const card = createRecipeCard(recipe);
+          grid.appendChild(card);
+        });
+      }
+
+      // 创建菜谱卡片
+      function createRecipeCard(recipe) {
+        const card = document.createElement("div");
+        card.className =
+          "bg-white rounded-xl shadow-card hover:shadow-hover transition-shadow overflow-hidden group";
+
+        // 老婆精选标签
+        const isWifeFavorite = recipe.rating === 5;
+        const favoriteTag = isWifeFavorite
+          ? '<div class="absolute top-2 right-2 bg-primary text-white text-xs px-2 py-1 rounded-full">老婆精选</div>'
+          : "";
+
+        card.innerHTML = `
+        <div class="relative h-48 overflow-hidden">
+          <img src="${getImageUrl(recipe.image)}" alt="${recipe.name}" class="w-full h-full object-cover transition-transform group-hover:scale-105">
+          ${favoriteTag}
+          <button class="absolute top-2 left-2 bg-white/80 p-1 rounded-full hover:bg-white transition-colors edit-image-btn" data-id="${recipe.id}">
+            <i class="fa fa-picture-o text-neutral-800"></i>
+          </button>
+        </div>
+        <div class="p-4">
+          <h3 class="font-bold text-lg mb-1">${recipe.name}</h3>
+          <div class="flex items-center mb-2">
+            <div class="flex mr-2 rating-stars" data-id="${recipe.id}">
+              ${generateStars(recipe.rating)}
+            </div>
+            <span class="text-sm text-neutral-500">${recipe.time}分钟</span>
+          </div>
+          <div class="flex flex-wrap gap-1 mb-3">
+            <span class="px-2 py-1 bg-neutral-200 rounded-full text-xs">${recipe.category}</span>
+            <span class="px-2 py-1 bg-neutral-200 rounded-full text-xs">${recipe.cookingMethod}</span>
+            <span class="px-2 py-1 bg-neutral-200 rounded-full text-xs">${recipe.flavor}</span>
+          </div>
+          <div class="flex gap-2">
+            <button class="flex-1 px-2 py-1 bg-primary/10 text-primary rounded-lg hover:bg-primary hover:text-white transition-colors edit-rating-btn" data-id="${recipe.id}">
+              <i class="fa fa-star mr-1"></i>修改评分
+            </button>
+            <button class="px-2 py-1 bg-secondary/10 text-secondary rounded-lg hover:bg-secondary hover:text-white transition-colors add-to-plan-btn" data-id="${recipe.id}">
+              <i class="fa fa-calendar-plus-o"></i>
+            </button>
+          </div>
+        </div>
+      `;
+
+        // 添加评分修改事件
+        card
+          .querySelector(".edit-rating-btn")
+          .addEventListener("click", function () {
+            openRatingModal(recipe.id);
+          });
+
+        // 添加图片修改事件
+        card
+          .querySelector(".edit-image-btn")
+          .addEventListener("click", function () {
+            openImageModal(recipe.id);
+          });
+
+        // 添加到规划事件
+        card
+          .querySelector(".add-to-plan-btn")
+          .addEventListener("click", function () {
+            selectedRecipeId = recipe.id;
+            // 打开快速添加模态框
+            document.getElementById("quick-add-modal").classList.remove("hidden");
+            // 显示菜谱信息
+            const recipeInfo = document.getElementById("quick-add-recipe-info");
+            recipeInfo.innerHTML = `
+              <div class="flex items-center">
+                <img src="${getImageUrl(recipe.image)}" alt="${recipe.name}" class="w-12 h-12 object-cover rounded mr-3">
+                <div>
+                  <h4 class="font-medium">${recipe.name}</h4>
+                  <div class="flex text-xs">
+                    ${generateStars(recipe.rating)}
+                  </div>
+                </div>
+              </div>
+            `;
+          });
+
+        // 星星点击事件
+        card.querySelectorAll(".rating-stars i").forEach((star) => {
+          star.addEventListener("click", function () {
+            const rating = parseInt(this.dataset.rating);
+            updateRecipeRating(recipe.id, rating);
+            renderRecipeGrid(currentRecipes);
+            renderAllRecipes();
+          });
+        });
+
+        return card;
+      }
+
+      // 生成星星评分
+      function generateStars(rating) {
+        let stars = "";
+        for (let i = 1; i <= 5; i++) {
+          const isActive = i <= rating;
+          stars += `<i class="fa fa-star ${isActive ? "star-active" : "star-inactive"}" data-rating="${i}"></i>`;
+        }
+        return stars;
+      }
+
+      // 打开评分修改模态框
+      function openRatingModal(recipeId) {
+        const recipe = currentRecipes.find((r) => r.id === recipeId);
+        if (!recipe) return;
+
+        selectedRecipeId = recipeId;
+        const modal = document.getElementById("rating-modal");
+        const title = document.getElementById("rating-modal-title");
+        const stars = document.getElementById("rating-stars");
+
+        // 更新标题
+        title.textContent = `修改评分 - ${recipe.name}`;
+
+        // 更新星星
+        stars.innerHTML = "";
+        for (let i = 1; i <= 5; i++) {
+          const star = document.createElement("i");
+          star.className = `fa fa-star text-2xl cursor-pointer ${i <= recipe.rating ? "star-active" : "star-inactive"}`;
+          star.dataset.rating = i;
+          star.addEventListener("click", function () {
+            // 更新星星显示
+            stars.querySelectorAll("i").forEach((s) => {
+              const sRating = parseInt(s.dataset.rating);
+              s.classList.toggle("star-active", sRating <= i);
+              s.classList.toggle("star-inactive", sRating > i);
+            });
+          });
+          stars.appendChild(star);
+        }
+
+        // 显示模态框
+        modal.classList.remove("hidden");
+      }
+
+      // 打开图片修改模态框
+      function openImageModal(recipeId) {
+        const recipe = currentRecipes.find((r) => r.id === recipeId);
+        if (!recipe) return;
+
+        selectedRecipeId = recipeId;
+        const modal = document.getElementById("image-modal");
+        const title = document.getElementById("image-modal-title");
+        const input = document.getElementById("image-url-input");
+
+        // 更新标题和输入框
+        title.textContent = `修改图片 - ${recipe.name}`;
+        input.value = recipe.image;
+
+        // 显示模态框
+        modal.classList.remove("hidden");
+      }
+
+      // 初始化模态框事件
+      function initModals() {
+        // 关闭评分模态框
+        document
+          .getElementById("close-rating-modal")
+          .addEventListener("click", function () {
+            document.getElementById("rating-modal").classList.add("hidden");
+          });
+
+        // 保存评分
+        document
+          .getElementById("save-rating")
+          .addEventListener("click", function () {
+            const stars = document.querySelectorAll(
+              "#rating-stars .star-active",
+            );
+            const newRating = stars.length;
+
+            if (newRating > 0 && selectedRecipeId) {
+              updateRecipeRating(selectedRecipeId, newRating);
+              document.getElementById("rating-modal").classList.add("hidden");
+              renderRecipeGrid(currentRecipes);
+              renderAllRecipes();
+            }
+          });
+
+        // 关闭图片模态框
+        document
+          .getElementById("close-image-modal")
+          .addEventListener("click", function () {
+            document.getElementById("image-modal").classList.add("hidden");
+          });
+
+        // 保存图片
+        document
+          .getElementById("save-image")
+          .addEventListener("click", function () {
+            const newImageUrl = document
+              .getElementById("image-url-input")
+              .value.trim();
+
+            if (newImageUrl && selectedRecipeId) {
+              updateRecipeImage(selectedRecipeId, newImageUrl);
+              document.getElementById("image-modal").classList.add("hidden");
+              renderRecipeGrid(currentRecipes);
+              renderAllRecipes();
+            }
+          });
+
+        // 关闭添加菜品模态框
+        document
+          .getElementById("close-modal")
+          .addEventListener("click", function () {
+            document.getElementById("add-recipe-modal").classList.add("hidden");
+          });
+
+        // 快速添加模态框事件
+        document
+          .getElementById("close-quick-add")
+          .addEventListener("click", function () {
+            document.getElementById("quick-add-modal").classList.add("hidden");
+          });
+
+        document
+          .getElementById("quick-add-cancel")
+          .addEventListener("click", function () {
+            document.getElementById("quick-add-modal").classList.add("hidden");
+          });
+
+        document
+          .getElementById("quick-add-confirm")
+          .addEventListener("click", function () {
+            const selectedDay = document.getElementById("quick-add-day").value;
+            const selectedMeal = document.getElementById("quick-add-meal").value;
+            
+            if (selectedRecipeId) {
+              const recipe = recipesData.foods.find(r => r.id === selectedRecipeId);
+              if (recipe) {
+                // 找到对应的日历单元格
+                const cell = document.querySelector(`.calendar-cell[data-day="${selectedDay}"][data-meal="${selectedMeal}"]`);
+                if (cell) {
+                  // 创建菜谱元素
+                  const recipeElement = document.createElement("div");
+                  recipeElement.className = "flex items-center justify-between p-1 mb-1 bg-white rounded shadow-sm";
+                  recipeElement.innerHTML = `
+                    <div class="flex items-center">
+                      <img src="${getImageUrl(recipe.image)}" alt="${recipe.name}" class="w-8 h-8 object-cover rounded mr-2">
+                      <span class="text-sm">${recipe.name}</span>
+                    </div>
+                    <button class="delete-recipe-btn text-neutral-500 hover:text-primary">
+                      <i class="fa fa-times"></i>
+                    </button>
+                  `;
+                  cell.appendChild(recipeElement);
+                  
+                  // 添加删除事件
+                  recipeElement.querySelector(".delete-recipe-btn").addEventListener("click", function (e) {
+                    e.stopPropagation();
+                    recipeElement.remove();
+                  });
+                }
+              }
+            }
+            
+            document.getElementById("quick-add-modal").classList.add("hidden");
+          });
+
+        // 确认添加菜品
+        document
+          .getElementById("confirm-add-recipe")
+          .addEventListener("click", function () {
+            if (selectedDay && selectedMeal) {
+              const checkedBoxes = document.querySelectorAll(".recipe-checkbox:checked");
+              const cell = document.querySelector(`.calendar-cell[data-day="${selectedDay}"][data-meal="${selectedMeal}"]`);
+              
+              if (cell && checkedBoxes.length > 0) {
+                checkedBoxes.forEach(checkbox => {
+                  const recipeId = parseInt(checkbox.dataset.id);
+                  const recipe = currentRecipes.find(r => r.id === recipeId);
+                  
+                  if (recipe) {
+                    // 添加菜品到单元格
+                    const recipeElement = document.createElement("div");
+                    recipeElement.className = "flex items-center justify-between p-1 mb-1 bg-white rounded shadow-sm";
+                    recipeElement.innerHTML = `
+                      <div class="flex items-center">
+                        <img src="${recipe.image}" alt="${recipe.name}" class="w-8 h-8 object-cover rounded mr-2">
+                        <span class="text-sm">${recipe.name}</span>
+                      </div>
+                      <button class="delete-recipe-btn text-neutral-500 hover:text-primary">
+                        <i class="fa fa-times"></i>
+                      </button>
+                    `;
+                    cell.appendChild(recipeElement);
+                    
+                    // 添加删除事件
+                    recipeElement.querySelector(".delete-recipe-btn").addEventListener("click", function (e) {
+                      e.stopPropagation();
+                      recipeElement.remove();
+                    });
+                  }
+                });
+              }
+            }
+            document.getElementById("add-recipe-modal").classList.add("hidden");
+          });
+
+        // 分页按钮
+        document
+          .getElementById("prev-page")
+          .addEventListener("click", function () {
+            if (currentPage > 1) {
+              currentPage--;
+              renderAllRecipes();
+              updatePagination();
+            }
+          });
+
+        document
+          .getElementById("next-page")
+          .addEventListener("click", function () {
+            const totalPages = Math.ceil(currentRecipes.length / itemsPerPage);
+            if (currentPage < totalPages) {
+              currentPage++;
+              renderAllRecipes();
+              updatePagination();
+            }
+          });
+      }
+
+      // 更新菜谱评分
+      function updateRecipeRating(recipeId, newRating) {
+        const recipe = currentRecipes.find((r) => r.id === recipeId);
+        if (recipe) {
+          recipe.rating = newRating;
+
+          // 保存到本地存储
+          const savedRatings = JSON.parse(
+            localStorage.getItem("recipeRatings") || "{}",
+          );
+          savedRatings[recipeId] = newRating;
+          localStorage.setItem("recipeRatings", JSON.stringify(savedRatings));
+        }
+      }
+
+      // 更新菜谱图片
+      function updateRecipeImage(recipeId, newImageUrl) {
+        const recipe = currentRecipes.find((r) => r.id === recipeId);
+        if (recipe) {
+          recipe.image = newImageUrl;
+
+          // 保存到本地存储
+          const savedImages = JSON.parse(
+            localStorage.getItem("recipeImages") || "{}",
+          );
+          savedImages[recipeId] = newImageUrl;
+          localStorage.setItem("recipeImages", JSON.stringify(savedImages));
+        }
+      }
+
+      // 更新分页控件
+      function updatePagination() {
+        const totalPages = Math.ceil(currentRecipes.length / itemsPerPage);
+        const prevBtn = document.getElementById("prev-page");
+        const nextBtn = document.getElementById("next-page");
+        const pageInfo = document.getElementById("page-info");
+
+        // 更新分页信息
+        pageInfo.textContent = `第 ${currentPage} 页 / 共 ${totalPages} 页`;
+
+        // 禁用/启用按钮
+        prevBtn.disabled = currentPage === 1;
+        nextBtn.disabled = currentPage === totalPages;
+      }
+
+      // 初始化日历
+      function initCalendar() {
+
+        // 日历单元格点击事件
+        document.querySelectorAll(".calendar-cell").forEach((cell) => {
+          cell.addEventListener("click", function () {
+            selectedDay = this.dataset.day;
+            selectedMeal = this.dataset.meal;
+            const dayNames = [
+              "",
+              "周一",
+              "周二",
+              "周三",
+              "周四",
+              "周五",
+              "周六",
+              "周日",
+            ];
+            const mealNames = {
+              breakfast: "早餐",
+              lunch: "午餐",
+              dinner: "晚餐",
+            };
+
+            document.getElementById("modal-title").textContent =
+              `添加菜品 - ${dayNames[selectedDay]} ${mealNames[selectedMeal]}`;
+
+            document
+              .getElementById("add-recipe-modal")
+              .classList.remove("hidden");
+            renderModalRecipeList();
+          });
+        });
+
+        // 周切换按钮
+        document
+          .getElementById("prev-week")
+          .addEventListener("click", function () {
+            // 实现上一周逻辑
+          });
+
+        document
+          .getElementById("next-week")
+          .addEventListener("click", function () {
+            // 实现下一周逻辑
+          });
+      }
+
+      // 渲染模态框菜谱列表
+      function renderModalRecipeList() {
+        const list = document.getElementById("modal-recipe-list");
+        list.innerHTML = "";
+
+        currentRecipes.forEach((recipe) => {
+          const item = document.createElement("div");
+          item.className =
+            "p-2 border border-neutral-200 rounded-lg hover:border-primary cursor-pointer";
+          item.innerHTML = `
+          <div class="flex items-center">
+            <input type="checkbox" class="recipe-checkbox mr-2" data-id="${recipe.id}">
+            <img src="${getImageUrl(recipe.image)}" alt="${recipe.name}" class="w-12 h-12 object-cover rounded mr-2">
+            <div>
+              <h4 class="font-medium">${recipe.name}</h4>
+              <div class="flex text-xs">
+                ${generateStars(recipe.rating)}
+              </div>
+            </div>
+          </div>
+        `;
+          item.addEventListener("click", function (e) {
+            if (!e.target.closest('.recipe-checkbox')) {
+              const checkbox = this.querySelector('.recipe-checkbox');
+              checkbox.checked = !checkbox.checked;
+              this.classList.toggle("border-primary", checkbox.checked);
+              this.classList.toggle("bg-primary/5", checkbox.checked);
+            }
+          });
+          list.appendChild(item);
+        });
+      }
+
+
+    </script>
+  </body>
 </html>
