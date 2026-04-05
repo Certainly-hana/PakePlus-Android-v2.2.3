@@ -1475,6 +1475,8 @@
 
       // 初始化日历
       function initCalendar() {
+        // 加载周计划数据
+        loadWeekPlan();
 
         // 日历单元格点击事件
         document.querySelectorAll(".calendar-cell").forEach((cell) => {
@@ -1519,6 +1521,51 @@
           .addEventListener("click", function () {
             // 实现下一周逻辑
           });
+      }
+
+      // 加载周计划数据
+      function loadWeekPlan() {
+        if (currentWeekPlan && currentWeekPlan.weeks && currentWeekPlan.weeks.length > 0) {
+          const week = currentWeekPlan.weeks[0];
+          if (week.days) {
+            // 遍历所有天
+            Object.keys(week.days).forEach(day => {
+              const dayPlan = week.days[day];
+              // 遍历所有餐次
+              Object.keys(dayPlan).forEach(meal => {
+                const recipes = dayPlan[meal];
+                const cell = document.querySelector(`.calendar-cell[data-day="${day}"][data-meal="${meal}"]`);
+                if (cell) {
+                  // 清空单元格
+                  cell.innerHTML = "";
+                  // 添加菜品
+                  recipes.forEach(recipe => {
+                    const recipeElement = document.createElement("div");
+                    recipeElement.className = "flex items-center justify-between p-1 mb-1 bg-white rounded shadow-sm";
+                    recipeElement.innerHTML = `
+                      <div class="flex items-center">
+                        <img src="${getImageUrl(recipe.image)}" alt="${recipe.name}" class="w-8 h-8 object-cover rounded mr-2">
+                        <span class="text-sm">${recipe.name}</span>
+                      </div>
+                      <button class="delete-recipe-btn text-neutral-500 hover:text-primary">
+                        <i class="fa fa-times"></i>
+                      </button>
+                    `;
+                    cell.appendChild(recipeElement);
+                    
+                    // 添加删除事件
+                    recipeElement.querySelector(".delete-recipe-btn").addEventListener("click", function (e) {
+                      e.stopPropagation();
+                      recipeElement.remove();
+                      // 同步到服务器
+                      syncPlanToServer();
+                    });
+                  });
+                }
+              });
+            });
+          }
+        }
       }
 
       // 渲染模态框菜谱列表
