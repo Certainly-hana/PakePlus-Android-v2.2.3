@@ -659,619 +659,15 @@
     </div>
 
     <script>
-      // 菜谱数据 (从JSON文件读取，这里先硬编码示例)
-      const recipesData = {
-        "foods": [
-          {
-            "id": 1,
-            "name": "辣椒炒肉",
-            "type": ["辣椒", "猪肉"],
-            "description": "",
-            "time": 9.99,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 4,
-            "cookingMethod": "炒",
-            "flavor": "辣",
-            "category": "荤菜"
-          },
-          {
-            "id": 2,
-            "name": "辣椒炒蛋",
-            "type": ["辣椒", "鸡蛋"],
-            "description": "",
-            "time": 9.99,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 3,
-            "cookingMethod": "炒",
-            "flavor": "辣",
-            "category": "半荤半素"
-          },
-          {
-            "id": 3,
-            "name": "蒜苔炒肉",
-            "type": ["蒜苔", "猪肉"],
-            "description": "",
-            "time": 9.99,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 5,
-            "cookingMethod": "炒",
-            "flavor": "咸",
-            "category": "荤菜"
-          },
-          {
-            "id": 4,
-            "name": "蒜苔炒蛋",
-            "type": ["蒜苔", "鸡蛋"],
-            "description": "",
-            "time": 9.99,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 2,
-            "cookingMethod": "炒",
-            "flavor": "咸",
-            "category": "半荤半素"
-          },
-          {
-            "id": 5,
-            "name": "西红柿炒蛋",
-            "type": ["西红柿", "鸡蛋"],
-            "description": "",
-            "time": 8,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 5,
-            "cookingMethod": "炒",
-            "flavor": "甜",
-            "category": "半荤半素"
-          },
-          {
-            "id": 6,
-            "name": "清炒玉米",
-            "type": ["玉米"],
-            "description": "",
-            "time": 7,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 3,
-            "cookingMethod": "炒",
-            "flavor": "甜",
-            "category": "素菜"
-          },
-          {
-            "id": 7,
-            "name": "豌豆炒玉米",
-            "type": ["豌豆", "玉米"],
-            "description": "",
-            "time": 8.5,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 4,
-            "cookingMethod": "炒",
-            "flavor": "甜",
-            "category": "素菜"
-          },
-          {
-            "id": 8,
-            "name": "辣子鸡",
-            "type": ["鸡肉"],
-            "description": "",
-            "time": 15,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 5,
-            "cookingMethod": "炒",
-            "flavor": "辣",
-            "category": "荤菜"
-          },
-          {
-            "id": 9,
-            "name": "酸辣藕丁",
-            "type": ["藕"],
-            "description": "",
-            "time": 10,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 3,
-            "cookingMethod": "炒",
-            "flavor": "酸辣",
-            "category": "素菜"
-          },
-          {
-            "id": 10,
-            "name": "干煸藕丝",
-            "type": ["藕"],
-            "description": "",
-            "time": 12,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 4,
-            "cookingMethod": "干煸",
-            "flavor": "辣",
-            "category": "素菜"
-          },
-          {
-            "id": 11,
-            "name": "红烧鱼",
-            "type": ["鱼"],
-            "description": "",
-            "time": 25,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 4,
-            "cookingMethod": "烧",
-            "flavor": "咸",
-            "category": "荤菜"
-          },
-          {
-            "id": 12,
-            "name": "鱼香肉丝",
-            "type": ["木耳", "猪肉", "胡萝卜", "辣椒"],
-            "description": "",
-            "time": 18,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 5,
-            "cookingMethod": "炒",
-            "flavor": "鱼香",
-            "category": "荤菜"
-          },
-          {
-            "id": 13,
-            "name": "手撕包菜",
-            "type": ["包菜"],
-            "description": "",
-            "time": 9,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 3,
-            "cookingMethod": "炒",
-            "flavor": "辣",
-            "category": "素菜"
-          },
-          {
-            "id": 14,
-            "name": "酸辣土豆丝",
-            "type": ["土豆"],
-            "description": "",
-            "time": 8,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 5,
-            "cookingMethod": "炒",
-            "flavor": "酸辣",
-            "category": "素菜"
-          },
-          {
-            "id": 15,
-            "name": "小炒黄牛肉",
-            "type": ["香菜", "牛肉"],
-            "description": "",
-            "time": 11,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 4,
-            "cookingMethod": "炒",
-            "flavor": "辣",
-            "category": "荤菜"
-          },
-          {
-            "id": 16,
-            "name": "香煎豆腐",
-            "type": ["老豆腐"],
-            "description": "",
-            "time": 10,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 3,
-            "cookingMethod": "煎",
-            "flavor": "咸",
-            "category": "素菜"
-          },
-          {
-            "id": 17,
-            "name": "红烧茄子",
-            "type": ["茄子"],
-            "description": "",
-            "time": 15,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 4,
-            "cookingMethod": "烧",
-            "flavor": "咸",
-            "category": "素菜"
-          },
-          {
-            "id": 18,
-            "name": "锅包肉",
-            "type": ["猪肉"],
-            "description": "",
-            "time": 20,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 5,
-            "cookingMethod": "煎",
-            "flavor": "甜酸",
-            "category": "荤菜"
-          },
-          {
-            "id": 19,
-            "name": "糖醋里脊",
-            "type": ["猪肉"],
-            "description": "",
-            "time": 18,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 4,
-            "cookingMethod": "炸",
-            "flavor": "甜酸",
-            "category": "荤菜"
-          },
-          {
-            "id": 20,
-            "name": "洋葱炒蛋",
-            "type": ["洋葱", "鸡蛋"],
-            "description": "",
-            "time": 8,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 3,
-            "cookingMethod": "炒",
-            "flavor": "咸",
-            "category": "半荤半素"
-          },
-          {
-            "id": 21,
-            "name": "油闷大虾",
-            "type": ["小龙虾"],
-            "description": "",
-            "time": 25,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 5,
-            "cookingMethod": "焖",
-            "flavor": "辣",
-            "category": "海鲜"
-          },
-          {
-            "id": 22,
-            "name": "红烧肉",
-            "type": ["猪肉"],
-            "description": "",
-            "time": 30,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 5,
-            "cookingMethod": "烧",
-            "flavor": "甜",
-            "category": "荤菜"
-          },
-          {
-            "id": 23,
-            "name": "牛蛙火锅",
-            "type": ["牛蛙"],
-            "description": "",
-            "time": 40,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 4,
-            "cookingMethod": "煮",
-            "flavor": "麻辣",
-            "category": "荤菜"
-          },
-          {
-            "id": 24,
-            "name": "干锅牛蛙",
-            "type": ["牛蛙"],
-            "description": "",
-            "time": 25,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 4,
-            "cookingMethod": "干锅",
-            "flavor": "辣",
-            "category": "荤菜"
-          },
-          {
-            "id": 25,
-            "name": "酸菜鱼",
-            "type": ["豌酸菜", "鱼"],
-            "description": "",
-            "time": 25,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 5,
-            "cookingMethod": "煮",
-            "flavor": "酸辣",
-            "category": "荤菜"
-          },
-          {
-            "id": 26,
-            "name": "蒜蓉虾",
-            "type": ["虾"],
-            "description": "",
-            "time": 15,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 4,
-            "cookingMethod": "蒸",
-            "flavor": "蒜香",
-            "category": "海鲜"
-          },
-          {
-            "id": 27,
-            "name": "蒜蓉鸡爪",
-            "type": ["鸡爪"],
-            "description": "",
-            "time": 20,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 3,
-            "cookingMethod": "卤",
-            "flavor": "蒜香",
-            "category": "荤菜"
-          },
-          {
-            "id": 28,
-            "name": "清炒秋葵",
-            "type": ["秋葵"],
-            "description": "",
-            "time": 7,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 2,
-            "cookingMethod": "炒",
-            "flavor": "咸",
-            "category": "素菜"
-          },
-          {
-            "id": 29,
-            "name": "糖醋排骨",
-            "type": ["猪排骨"],
-            "description": "",
-            "time": 25,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 5,
-            "cookingMethod": "烧",
-            "flavor": "甜酸",
-            "category": "荤菜"
-          },
-          {
-            "id": 30,
-            "name": "羊肉火锅",
-            "type": ["羊肉"],
-            "description": "",
-            "time": 45,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 4,
-            "cookingMethod": "煮",
-            "flavor": "麻辣",
-            "category": "荤菜"
-          },
-          {
-            "id": 31,
-            "name": "麻辣甲鱼",
-            "type": ["甲鱼"],
-            "description": "",
-            "time": 35,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 3,
-            "cookingMethod": "炖",
-            "flavor": "麻辣",
-            "category": "荤菜"
-          },
-          {
-            "id": 32,
-            "name": "干煸土豆丝",
-            "type": ["土豆"],
-            "description": "",
-            "time": 10,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 3,
-            "cookingMethod": "干煸",
-            "flavor": "辣",
-            "category": "素菜"
-          },
-          {
-            "id": 33,
-            "name": "豆豉鲮鱼炒油麦菜",
-            "type": ["豆豉鲮鱼", "油麦菜"],
-            "description": "",
-            "time": 9,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 4,
-            "cookingMethod": "炒",
-            "flavor": "咸",
-            "category": "半荤半素"
-          },
-          {
-            "id": 34,
-            "name": "水煮肉片",
-            "type": ["猪肉"],
-            "description": "",
-            "time": 15,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 4,
-            "cookingMethod": "煮",
-            "flavor": "麻辣",
-            "category": "荤菜"
-          },
-          {
-            "id": 35,
-            "name": "麻辣花甲",
-            "type": ["花甲"],
-            "description": "",
-            "time": 12,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 4,
-            "cookingMethod": "炒",
-            "flavor": "麻辣",
-            "category": "海鲜"
-          },
-          {
-            "id": 36,
-            "name": "椒盐玉米",
-            "type": ["玉米"],
-            "description": "",
-            "time": 8,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 3,
-            "cookingMethod": "炒",
-            "flavor": "椒盐",
-            "category": "素菜"
-          },
-          {
-            "id": 37,
-            "name": "椒盐虾",
-            "type": ["基围虾"],
-            "description": "",
-            "time": 10,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 4,
-            "cookingMethod": "炸",
-            "flavor": "椒盐",
-            "category": "海鲜"
-          },
-          {
-            "id": 38,
-            "name": "滑藕片",
-            "type": ["辣椒", "藕"],
-            "description": "",
-            "time": 8,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 3,
-            "cookingMethod": "炒",
-            "flavor": "辣",
-            "category": "素菜"
-          },
-          {
-            "id": 39,
-            "name": "酸辣鸡杂",
-            "type": ["蒜苔", "鸡杂"],
-            "description": "",
-            "time": 12,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 4,
-            "cookingMethod": "炒",
-            "flavor": "酸辣",
-            "category": "荤菜"
-          },
-          {
-            "id": 40,
-            "name": "凉拌黄瓜",
-            "type": ["黄瓜"],
-            "description": "",
-            "time": 5,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 3,
-            "cookingMethod": "凉拌",
-            "flavor": "酸辣",
-            "category": "素菜"
-          },
-          {
-            "id": 41,
-            "name": "清炒黄瓜",
-            "type": ["黄瓜"],
-            "description": "",
-            "time": 6,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 2,
-            "cookingMethod": "炒",
-            "flavor": "咸",
-            "category": "素菜"
-          },
-          {
-            "id": 42,
-            "name": "清炒豆芽",
-            "type": ["豆芽"],
-            "description": "",
-            "time": 5,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 2,
-            "cookingMethod": "炒",
-            "flavor": "咸",
-            "category": "素菜"
-          },
-          {
-            "id": 43,
-            "name": "芹菜炒肉",
-            "type": ["芹菜", "猪肉"],
-            "description": "",
-            "time": 9,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 3,
-            "cookingMethod": "炒",
-            "flavor": "咸",
-            "category": "荤菜"
-          },
-          {
-            "id": 44,
-            "name": "炒豆角",
-            "type": ["豆角"],
-            "description": "",
-            "time": 10,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 3,
-            "cookingMethod": "炒",
-            "flavor": "咸",
-            "category": "素菜"
-          },
-          {
-            "id": 45,
-            "name": "酱烧肘子",
-            "type": ["猪肘子"],
-            "description": "",
-            "time": 60,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 4,
-            "cookingMethod": "烧",
-            "flavor": "酱香",
-            "category": "荤菜"
-          },
-          {
-            "id": 46,
-            "name": "韭菜炒鸡蛋",
-            "type": ["韭菜", "鸡蛋"],
-            "description": "",
-            "time": 7,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 4,
-            "cookingMethod": "炒",
-            "flavor": "咸",
-            "category": "半荤半素"
-          },
-          {
-            "id": 47,
-            "name": "韭黄炒肉丝",
-            "type": ["韭黄", "猪肉"],
-            "description": "",
-            "time": 8,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 3,
-            "cookingMethod": "炒",
-            "flavor": "咸",
-            "category": "荤菜"
-          },
-          {
-            "id": 48,
-            "name": "花菜炒肉",
-            "type": ["西兰花", "猪肉"],
-            "description": "",
-            "time": 10,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 3,
-            "cookingMethod": "炒",
-            "flavor": "咸",
-            "category": "荤菜"
-          },
-          {
-            "id": 49,
-            "name": "麻婆豆腐",
-            "type": ["嫩豆腐", "猪肉"],
-            "description": "",
-            "time": 12,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 5,
-            "cookingMethod": "烧",
-            "flavor": "麻辣",
-            "category": "半荤半素"
-          },
-          {
-            "id": 50,
-            "name": "清蒸鲈鱼",
-            "type": ["鱼"],
-            "description": "",
-            "time": 20,
-            "image": "http://101.126.80.178:40061/i/2026/04/05/69d24e0275403.png",
-            "rating": 4,
-            "cookingMethod": "蒸",
-            "flavor": "鲜",
-            "category": "荤菜"
-          }
-        ]
-      };
-
       // 全局变量
-      let currentRecipes = [...recipesData.foods];
+      let recipesData = { foods: [] };
+      let currentRecipes = [];
       let currentPage = 1;
       const itemsPerPage = 8; // 每页显示8个菜品
       let selectedRecipeId = null;
       let selectedDay = null;
       let selectedMeal = null;
+      let currentWeekPlan = {};
 
       // 图片代理函数，解决CORS问题
       function getImageUrl(url) {
@@ -1283,8 +679,130 @@
         return `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
       }
 
+      // 服务器地址
+      const SERVER_URL = 'http://101.126.80.178:3000';
+
+      // 从服务器获取菜品数据
+      async function fetchFoods() {
+        try {
+          const response = await fetch(`${SERVER_URL}/api/foods`);
+          if (!response.ok) {
+            throw new Error('Failed to fetch foods');
+          }
+          const data = await response.json();
+          recipesData = data;
+          currentRecipes = [...recipesData.foods];
+          return data;
+        } catch (error) {
+          console.error('Error fetching foods:', error);
+          // 使用本地数据作为备份
+          return { foods: [] };
+        }
+      }
+
+      // 从服务器获取周计划数据
+      async function fetchPlan() {
+        try {
+          const response = await fetch(`${SERVER_URL}/api/plan`);
+          if (!response.ok) {
+            throw new Error('Failed to fetch plan');
+          }
+          const data = await response.json();
+          currentWeekPlan = data;
+          return data;
+        } catch (error) {
+          console.error('Error fetching plan:', error);
+          // 使用本地数据作为备份
+          return { weeks: [] };
+        }
+      }
+
+      // 保存菜品数据到服务器
+      async function saveFoods(data) {
+        try {
+          const response = await fetch(`${SERVER_URL}/api/foods`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+          });
+          if (!response.ok) {
+            throw new Error('Failed to save foods');
+          }
+          return true;
+        } catch (error) {
+          console.error('Error saving foods:', error);
+          return false;
+        }
+      }
+
+      // 保存周计划数据到服务器
+      async function savePlan(data) {
+        try {
+          const response = await fetch(`${SERVER_URL}/api/plan`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+          });
+          if (!response.ok) {
+            throw new Error('Failed to save plan');
+          }
+          return true;
+        } catch (error) {
+          console.error('Error saving plan:', error);
+          return false;
+        }
+      }
+
+      // 同步周计划到服务器
+      function syncPlanToServer() {
+        // 构建周计划数据
+        const planData = { weeks: [] };
+        
+        // 收集当前周的计划
+        const currentWeek = {
+          days: {}
+        };
+        
+        // 遍历所有日历单元格
+        document.querySelectorAll('.calendar-cell').forEach(cell => {
+          const day = cell.dataset.day;
+          const meal = cell.dataset.meal;
+          
+          if (!currentWeek.days[day]) {
+            currentWeek.days[day] = {
+              breakfast: [],
+              lunch: [],
+              dinner: []
+            };
+          }
+          
+          // 收集该单元格中的所有菜品
+          const recipes = [];
+          cell.querySelectorAll('div.flex.items-center.justify-between').forEach(recipeElement => {
+            const name = recipeElement.querySelector('span').textContent;
+            const image = recipeElement.querySelector('img').src;
+            recipes.push({ name, image });
+          });
+          
+          currentWeek.days[day][meal] = recipes;
+        });
+        
+        planData.weeks.push(currentWeek);
+        
+        // 保存到服务器
+        savePlan(planData);
+      }
+
       // 初始化页面
-      document.addEventListener("DOMContentLoaded", function () {
+      document.addEventListener("DOMContentLoaded", async function () {
+        // 从服务器加载数据
+        await fetchFoods();
+        await fetchPlan();
+
         // 从本地存储加载评分和图片
         loadLocalData();
 
@@ -1326,6 +844,66 @@
             recipe.image = savedImages[recipe.id];
           }
         });
+
+        // 同时更新recipesData
+        recipesData.foods.forEach((recipe) => {
+          if (savedRatings[recipe.id]) {
+            recipe.rating = savedRatings[recipe.id];
+          }
+          if (savedImages[recipe.id]) {
+            recipe.image = savedImages[recipe.id];
+          }
+        });
+      }
+
+      // 保存评分到本地存储和服务器
+      function saveRating(id, rating) {
+        // 保存到本地存储
+        const savedRatings = JSON.parse(
+          localStorage.getItem("recipeRatings") || "{}"
+        );
+        savedRatings[id] = rating;
+        localStorage.setItem("recipeRatings", JSON.stringify(savedRatings));
+
+        // 更新本地数据
+        currentRecipes.forEach((recipe) => {
+          if (recipe.id == id) {
+            recipe.rating = rating;
+          }
+        });
+        recipesData.foods.forEach((recipe) => {
+          if (recipe.id == id) {
+            recipe.rating = rating;
+          }
+        });
+
+        // 保存到服务器
+        saveFoods(recipesData);
+      }
+
+      // 保存图片到本地存储和服务器
+      function saveImage(id, imageUrl) {
+        // 保存到本地存储
+        const savedImages = JSON.parse(
+          localStorage.getItem("recipeImages") || "{}"
+        );
+        savedImages[id] = imageUrl;
+        localStorage.setItem("recipeImages", JSON.stringify(savedImages));
+
+        // 更新本地数据
+        currentRecipes.forEach((recipe) => {
+          if (recipe.id == id) {
+            recipe.image = imageUrl;
+          }
+        });
+        recipesData.foods.forEach((recipe) => {
+          if (recipe.id == id) {
+            recipe.image = imageUrl;
+          }
+        });
+
+        // 保存到服务器
+        saveFoods(recipesData);
       }
 
       // 初始化底部导航
@@ -1789,7 +1367,12 @@
                   recipeElement.querySelector(".delete-recipe-btn").addEventListener("click", function (e) {
                     e.stopPropagation();
                     recipeElement.remove();
+                    // 同步到服务器
+                    syncPlanToServer();
                   });
+                  
+                  // 同步到服务器
+                  syncPlanToServer();
                 }
               }
             }
@@ -1816,7 +1399,7 @@
                     recipeElement.className = "flex items-center justify-between p-1 mb-1 bg-white rounded shadow-sm";
                     recipeElement.innerHTML = `
                       <div class="flex items-center">
-                        <img src="${recipe.image}" alt="${recipe.name}" class="w-8 h-8 object-cover rounded mr-2">
+                        <img src="${getImageUrl(recipe.image)}" alt="${recipe.name}" class="w-8 h-8 object-cover rounded mr-2">
                         <span class="text-sm">${recipe.name}</span>
                       </div>
                       <button class="delete-recipe-btn text-neutral-500 hover:text-primary">
@@ -1829,9 +1412,14 @@
                     recipeElement.querySelector(".delete-recipe-btn").addEventListener("click", function (e) {
                       e.stopPropagation();
                       recipeElement.remove();
+                      // 同步到服务器
+                      syncPlanToServer();
                     });
                   }
                 });
+                
+                // 同步到服务器
+                syncPlanToServer();
               }
             }
             document.getElementById("add-recipe-modal").classList.add("hidden");
@@ -1862,32 +1450,12 @@
 
       // 更新菜谱评分
       function updateRecipeRating(recipeId, newRating) {
-        const recipe = currentRecipes.find((r) => r.id === recipeId);
-        if (recipe) {
-          recipe.rating = newRating;
-
-          // 保存到本地存储
-          const savedRatings = JSON.parse(
-            localStorage.getItem("recipeRatings") || "{}",
-          );
-          savedRatings[recipeId] = newRating;
-          localStorage.setItem("recipeRatings", JSON.stringify(savedRatings));
-        }
+        saveRating(recipeId, newRating);
       }
 
       // 更新菜谱图片
       function updateRecipeImage(recipeId, newImageUrl) {
-        const recipe = currentRecipes.find((r) => r.id === recipeId);
-        if (recipe) {
-          recipe.image = newImageUrl;
-
-          // 保存到本地存储
-          const savedImages = JSON.parse(
-            localStorage.getItem("recipeImages") || "{}",
-          );
-          savedImages[recipeId] = newImageUrl;
-          localStorage.setItem("recipeImages", JSON.stringify(savedImages));
-        }
+        saveImage(recipeId, newImageUrl);
       }
 
       // 更新分页控件
